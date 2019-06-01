@@ -57,7 +57,6 @@ class TvShow(object):
         return episodes
 
 
-
 class UserInterface(object):
     """ Class with UI for collecting data and show messages.
     """
@@ -127,8 +126,6 @@ class UserInterface(object):
             return None
 
 
-
-
 def get_files_from_directory(path):
     # Getting list of all file names from chosen directory
     files = os.listdir(path)
@@ -156,7 +153,6 @@ def search_for_series(title):
         return results
     else:
         return None
-
 
 
 def rename_files(episodes, path_to_files, season=None, quality=None):
@@ -210,7 +206,6 @@ def start():
         users_tv_show = ui.chose_show_among_series(series_list)
     else:
         ui.no_results_msg()
-
 
     if users_tv_show is not None:
         season = ui.chose_season(users_tv_show)
