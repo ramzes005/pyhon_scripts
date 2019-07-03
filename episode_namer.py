@@ -13,7 +13,10 @@ class TvShow(object):
     def __init__(self, data):
         self.title = self.extract(data, '"filmPreview__title">', '</h3>')
         self.year = int(self.extract(data,'"filmPreview__year">', '</span>'))
-        self.seasons = int(self.extract(data,'"filmPreview__seasonsCount">', '</div>').split(' ')[0])
+        try:
+            self.seasons = int(self.extract(data,'"filmPreview__seasonsCount">', '</div>').split(' ')[0])
+        except ValueError:
+            self.seasons = 0
         self.rate = self.extract(data,'"rateBox__rate">', '</span>')
         self.description = self.extract(data,'"filmPreview__description"><p>', '</p>')
         self.link = URI + self.extract(data,'"filmPreview__link" href="', '">')
