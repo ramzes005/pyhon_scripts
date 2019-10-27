@@ -49,6 +49,7 @@ class TvShow(object):
         names = resp.split('<div class="episode__title">')[1:]
         # Delete all text before first episode and text after for each one
         names = [x.split('<')[0].replace("&times;", "x").replace("&oacute;", "ó") for x in names]
+        names = [x.strip() for x in names]
 
         # Create and return dict with an episode number as a key and name as a value
         episodes = {}
