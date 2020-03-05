@@ -1,6 +1,11 @@
+#!/usr/bin/python3.7
+
 import os
 import easygui
 import requests
+
+# sudo apt-get install python3-tk
+# pip3 install easygui
 
 URI = "https://www.filmweb.pl"
 LIVE_SEARCH = "https://www.filmweb.pl/serials/search?q="
@@ -40,23 +45,24 @@ class TvShow(object):
         :return: List of episodes
         """
 
-        postfix = "/episodes/"
-        postfix += str(season) if season is not None else ''
+        postfix = "/episode/"
+        postfix += str(season) if season is not None else '1'
+        postfix += "/list"
         print("SEASON: " + postfix)
         resp = requests.get(self.link + postfix).text
 
         # Extract every episode starts with episode's name to element of array
-        names = resp.split('<div class="episode__title">')[1:]
+        names = resp.split('<span class="episodePreview__title" data-source-title>')[1:]
         # Delete all text before first episode and text after for each one
         names = [x.split('<')[0].replace("&times;", "x").replace("&oacute;", "ó") for x in names]
         names = [x.strip() for x in names]
 
         # Create and return dict with an episode number as a key and name as a value
         episodes = {}
+        index = 1
         for n in names:
-            e = n.split(" - ")
-            if len(e) > 1:
-                episodes[e[0]] = e[1]
+            episodes[str(index)] = n
+            index += 1
 
         return episodes
 
@@ -159,7 +165,7 @@ def search_for_series(title):
         return None
 
 
-def rename_files(episodes, path_to_files, season=None, quality=None):
+def rename_files(episodes, path_to_files, connector, season=None, quality=None):
     """ Method for rename files in path which names are digits with episodes from Filmweb.pl.
 
     :param episodes: Dictionary of episodes
@@ -187,12 +193,12 @@ def rename_files(episodes, path_to_files, season=None, quality=None):
 
             new_name = prefix + episodes[old_name].replace(":", " -").replace("?", "") + suffix
 
-            rename_from = path_to_files + "\\" + old_name + "." + extension
-            rename_to = path_to_files + "\\" + new_name + "." + extension
+            rename_from = path_to_files + connector + old_name + "." + extension
+            rename_to = path_to_files + connector + new_name + "." + extension
             os.rename(rename_from, rename_to)
 
 
-def start():
+def start(connector):
     """ Step by step to rename files. """
     ui = UserInterface()
 
@@ -222,11 +228,15 @@ def start():
         quality = ui.insert_quality()
 
         if ui.confirmation():
-            rename_files(episodes, path, season, quality)
+            rename_files(episodes, path, connector, season, quality)
 
 
 def main():
-    start()
+    if os.name == 'posix':
+        connector = "/"
+    else:
+        connector = "\\"
+    start(connector)
 
 
 if __name__ == '__main__':
