@@ -16,16 +16,15 @@ class TvShow(object):
     """
 
     def __init__(self, data):
-        self.title = self.extract(data, '"filmPreview__title">', '</h3>')
-        self.year = int(self.extract(data,'"filmPreview__year">', '</span>'))
+        self.title = self.extract(self.extract(data, '"filmPreview__title"', '</h2>'), '>', '<')
+        self.year = int(self.extract(self.extract(data, '"filmPreview__year"', '/div>'), '>', '<'))
         try:
-            self.seasons = int(self.extract(data,'"filmPreview__seasonsCount">', '</div>').split(' ')[0])
+            self.seasons = int(self.extract(data, '"filmPreview__seasonsCount">', '</div>').split(' ')[0])
         except ValueError:
             self.seasons = 0
-        self.rate = self.extract(data,'"rateBox__rate">', '</span>')
-        self.description = self.extract(data,'"filmPreview__description"><p>', '</p>')
-        self.link = URI + self.extract(data,'"filmPreview__link" href="', '">')
-
+        self.rate = self.extract(self.extract(data, '"rateBox__rate"', '/span>'), '>', '<')
+        self.description = self.extract(data, '"filmPreview__description"><p>', '</p>')
+        self.link = URI + self.extract(data, '"filmPreview__link" href="', '"')
 
     @classmethod
     def extract(cls, string, begin, end):
@@ -37,7 +36,6 @@ class TvShow(object):
 
     def __str__(self):
         return self.title + " (" + str(self.year) + ") Rate= " + self.rate + " Seasons: " + str(self.seasons)
-
 
     def get_episode_names(self, season):
         """ Method for extracting episode names from HTML.
@@ -52,7 +50,7 @@ class TvShow(object):
         resp = requests.get(self.link + postfix).text
 
         # Extract every episode starts with episode's name to element of array
-        names = resp.split('<span class="episodePreview__title" data-source-title>')[1:]
+        names = resp.split('class="episodePreview__title" data-source-title>')[1:]
         # Delete all text before first episode and text after for each one
         names = [x.split('<')[0].replace("&times;", "x").replace("&oacute;", "ó") for x in names]
         names = [x.strip() for x in names]
